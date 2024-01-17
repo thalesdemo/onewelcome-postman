@@ -1,0 +1,350 @@
+{
+  "info": {
+    "name": "SCIM User Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET SCIM Bearer Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);",
+              "pm.collectionVariables.set(\"scimAccessToken\", jsonData.access_token);",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "client_credentials",
+              "type": "text"
+            },
+            {
+              "key": "client_id",
+              "value": "{{scimClientId}}",
+              "type": "text"
+            },
+            {
+              "key": "client_secret",
+              "value": "{{scimClientSecret}}",
+              "type": "text"
+            },
+            {
+              "key": "scope",
+              "value": "iwelcome:segment:{{segmentName}} SCIM:user:post SCIM:user:get SCIM:user:query SCIM:user:post SCIM:user:patch SCIM:user:delete",
+              "type": "text"
+            },
+            {
+              "key": "expires_in",
+              "value": "31536000",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/oauth2.0/v1/token",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "oauth2.0", "v1", "token"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "CREATE User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);",
+              "pm.collectionVariables.set(\"userId\", jsonData.Resources[0].id);",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{scimAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"schemas\": [\n        \"urn:scim:schemas:core:1.0\",\n        \"urn:scim:schemas:extension:iwelcome:1.0\",\n        \"urn:scim:schemas:extension:iwelcome:1.0:ritm\",\n        \"urn:scim:schemas:extension:{{segmentName}}:1.0\"\n\n    ],\n    \"userName\": \"john\",\n    \"password\": \"Password1!\",\n    \"name\": {\n        \"givenName\": \"John\",\n        \"familyName\": \"Smith\"\n    },\n    \"emails\": [\n        {\n            \"type\": \"work\",\n            \"value\": \"john@example.com\",\n            \"primary\": true\n        }\n    ],\n    \"urn:scim:schemas:extension:iwelcome:1.0\": {\n        \"state\": \"ACTIVE\"\n    },\n    \"urn:scim:schemas:extension:dev:1.0\": {\n        \"employeeId\": \"1122334455\"\n    },\n    \"urn:scim:schemas:extension:iwelcome:1.0:ritm\": {\n        \"roles\": [\n            {\n                \"role\": \"personal\",\n                \"startDate\": \"1970-01-01T00:00:00.000Z\",\n                \"endDate\": \"2100-01-01T00:00:00.000Z\"\n            }\n        ],\n        \"groups\": [\n            {\n                \"structureCode\": \"default\",\n                \"itemCode\": \"default\"\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://sandbox-everi.dev.onewelcome.io/default/scim/Users",
+          "protocol": "https",
+          "host": ["sandbox-everi", "dev", "onewelcome", "io"],
+          "path": ["default", "scim", "Users"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "CREATE Super Admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);",
+              "pm.collectionVariables.set(\"userId\", jsonData.Resources[0].id);",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disabledSystemHeaders": {
+          "content-type": true
+        }
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{scimAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"schemas\": [\n        \"urn:scim:schemas:core:1.0\",\n        \"urn:scim:schemas:extension:iwelcome:1.0\",\n        \"urn:scim:schemas:extension:iwelcome:1.0:ritm\",\n        \"urn:scim:schemas:extension:{{segmentName}}:1.0\"\n\n    ],\n    \"userName\": \"john\",\n    \"password\": \"Password1!\",\n    \"name\": {\n        \"givenName\": \"John\",\n        \"familyName\": \"Smith\"\n    },\n    \"emails\": [\n        {\n            \"type\": \"work\",\n            \"value\": \"john@example.com\",\n            \"primary\": true\n        }\n    ],\n    \"urn:scim:schemas:extension:iwelcome:1.0\": {\n        \"state\": \"ACTIVE\"\n    },\n    \"urn:scim:schemas:extension:dev:1.0\": {\n        \"employeeId\": \"1122334455\"\n    },\n    \"urn:scim:schemas:extension:iwelcome:1.0:ritm\": {\n        \"roles\": [\n            {\n                \"role\": \"personal\",\n                \"startDate\": \"1970-01-01T00:00:00.000Z\",\n                \"endDate\": \"2100-01-01T00:00:00.000Z\"\n            },\n            {\n                \"role\": \"admin\",\n                \"startDate\": \"1970-01-01T00:00:00.000Z\",\n                \"endDate\": \"2100-01-01T00:00:00.000Z\"\n            }\n        ],\n        \"groups\": [\n            {\n                \"structureCode\": \"default\",\n                \"itemCode\": \"default\"\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://sandbox-everi.dev.onewelcome.io/default/scim/Users",
+          "protocol": "https",
+          "host": ["sandbox-everi", "dev", "onewelcome", "io"],
+          "path": ["default", "scim", "Users"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET User (with Filter)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);",
+              "pm.collectionVariables.set(\"userId\", jsonData.Resources[0].id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{scimAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/scim/Users?filter=emails CO \"@example.com\"",
+          "host": ["{{baseUrl}}"],
+          "path": ["scim", "Users"],
+          "query": [
+            {
+              "key": "filter",
+              "value": "emails CO \"@example.com\""
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET User (with User ID)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);",
+              "pm.collectionVariables.set(\"userId\", jsonData.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{scimAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/scim/Users/{{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["scim", "Users", "{{userId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PATCH User",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{scimAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"schemas\": [\n        \"urn:scim:schemas:core:1.0\"\n    ],\n    \"password\": \"<enter-new-password-here>\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/scim/Users/{{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["scim", "Users", "{{userId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [""],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{scimAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/scim/Users/{{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["scim", "Users", "{{userId}}"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "scimAccessToken",
+      "value": "This field will be automatically populated after calling GET SCIM Bearer Token",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "This field will be automatically populated after calling GET User"
+    },
+    {
+      "key": "baseUrl",
+      "value": "<REPLACE-WITH-YOUR-TENANT-BASE-URL-INCLUDING-BRAND>"
+    },
+    {
+      "key": "scimClientId",
+      "value": "<REPLACE-WITH-YOUR-SCIM-CLIENT-ID>"
+    },
+    {
+      "key": "scimClientSecret",
+      "value": "<REPLACE-WITH-YOUR-SCIM-CLIENT-SECRET>"
+    },
+    {
+      "key": "segmentName",
+      "value": "<REPLACE-WITH-YOUR-SEGMENT-NAME>"
+    }
+  ]
+}
